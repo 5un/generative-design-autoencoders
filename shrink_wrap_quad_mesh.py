@@ -2,6 +2,7 @@ import numpy as np
 import trimesh
 from pyrender_dev import pyrender
 from build_depth_surface import *
+from utils import *
 import matplotlib.pyplot as plt
 
 class ShrinkWrapQuadMesh():
@@ -348,7 +349,18 @@ class ShrinkWrapQuadMesh():
     return quad_mesh
 
   def vectorize(trimesh, bounding_box, num_subdivisions=5, resolution_multiplier=1, mesh_transform=None, return_result_mesh=False, debug=False):
-    mesh = pyrender.Mesh.from_trimesh(trimesh)
+
+    if type(trimesh) == list:
+      mesh = []
+      for tm in trimesh:
+        mesh.append(pyrender.Mesh.from_trimesh(tm))
+      mesh_bounds = find_common_bounds(trimesh)    
+    else:
+      mesh = pyrender.Mesh.from_trimesh(trimesh)
+      mesh_bounds = trimesh.bounds
+      trimesh = [trimesh]
+
+
     map_top, s_top = build_depth_surface(mesh, bounding_box, direction='+z', znear=0.001, resolution_multiplier=resolution_multiplier, mesh_transform=mesh_transform)
     map_bottom, s_bottom = build_depth_surface(mesh, bounding_box, direction='-z', znear=0.001, resolution_multiplier=resolution_multiplier, mesh_transform=mesh_transform)
     map_front, s_front = build_depth_surface(mesh, bounding_box, direction='-y', znear=0.001, resolution_multiplier=resolution_multiplier, mesh_transform=mesh_transform)
@@ -382,13 +394,14 @@ class ShrinkWrapQuadMesh():
     #   print(quad_mesh.vertices)
     #   ShrinkWrapQuadMesh.preview_meshes([trimesh, quad_mesh.get_tri_mesh()])
 
-    quad_mesh = ShrinkWrapQuadMesh.from_box(bounds=trimesh.bounds)
+    quad_mesh = ShrinkWrapQuadMesh.from_box(bounds=mesh_bounds)
     indices = range(len(quad_mesh.vertices))
     # distances, points = quad_mesh.get_min_projection_distances_to_surfaces(indices, depth_surfaces)
-    distances, points = quad_mesh.get_min_projection_distances_to_surfaces(indices, [trimesh])
+    distances, points = quad_mesh.get_min_projection_distances_to_surfaces(indices, trimesh)
     quad_mesh.project_vertices(indices, distances)
 
-    ShrinkWrapQuadMesh.preview_initial_fit([trimesh], quad_mesh.vertices)
+    if debug:
+      ShrinkWrapQuadMesh.preview_initial_fit(trimesh, quad_mesh.vertices)
 
     # collect initial mesh as vector
     # print(quad_mesh.vertices.flatten())

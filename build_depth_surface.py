@@ -21,9 +21,17 @@ def render_depth_map(mesh, bounding_box, direction='top', znear=0.05, resolution
   scene = pyrender.Scene()
 
   if mesh_transform is not None:
-    scene.add(mesh, pose=mesh_transform)
+    if type(mesh) != list:
+      scene.add(mesh, pose=mesh_transform)
+    else:
+      for m in mesh:
+        scene.add(m, pose=mesh_transform)
   else:
-    scene.add(mesh)
+    if type(mesh) != list:
+      scene.add(mesh)
+    else:
+      for m in mesh:
+        scene.add(m)
   
   # +Z
   if (direction == 'top') or (direction == '+z'):
@@ -219,10 +227,6 @@ def build_depth_surface(mesh, bounding_box, direction='top', znear=0.05, resolut
   depth = render_depth_map(mesh, bounding_box, direction, znear, resolution_multiplier, mesh_transform)
   s = build_depth_surface_mesh(depth, bounding_box, direction)
   return depth, s
-
-def build_depth_surfaces(mesh, bounding_box, znear=0.05):
-  # build surfaces in all directions
-  return []
 
 def build_plane(dimensions, axes='xy'):
   vertices = []

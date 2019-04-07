@@ -5,7 +5,9 @@ import trimesh
 # model_dir = '../models/02876657/' # bottles
 # model_dir = '../models/02924116/' # bus
 
-model_dir = '../models/03938244/' # pillow
+# model_dir = '../models/03938244/' # pillow
+
+model_dir = '../models/03761084/' # pillow
 
 
 
@@ -20,16 +22,18 @@ for filename in os.listdir(model_dir):
   try:
     print(filename)
     target = trimesh.load(model_dir + filename + '/model.obj')
+    
+    all_meshes = target
     if type(target) != list:
-      input_models.append(filename)
-      print(target.bounds)
+      all_meshes = [target]
+    
+    for m in all_meshes:
+      print(m.bounds)
       for axis in range(3):
-        if target.bounds[0][axis] < common_bounds[0][axis]:
-          common_bounds[0][axis] = target.bounds[0][axis]
-        if target.bounds[1][axis] > common_bounds[1][axis]:
-          common_bounds[1][axis] = target.bounds[1][axis]
-    else:
-      rejected_models_count +=1
+        if m.bounds[0][axis] < common_bounds[0][axis]:
+          common_bounds[0][axis] = m.bounds[0][axis]
+        if m.bounds[1][axis] > common_bounds[1][axis]:
+          common_bounds[1][axis] = m.bounds[1][axis]
 
     # TODO: deal with list mesh
   except FileNotFoundError:
