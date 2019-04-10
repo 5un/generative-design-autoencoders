@@ -3,11 +3,11 @@ import trimesh
 
 # Root dir
 # model_dir = '../models/02876657/' # bottles
-# model_dir = '../models/02924116/' # bus
+model_dir = '../models/02924116/' # bus
 
 # model_dir = '../models/03938244/' # pillow
 
-model_dir = '../models/03761084/' # pillow
+# model_dir = '../models/03761084/' # pillow
 
 
 
@@ -36,8 +36,10 @@ for filename in os.listdir(model_dir):
           common_bounds[1][axis] = m.bounds[1][axis]
 
     # TODO: deal with list mesh
-  except FileNotFoundError:
-    # print(err)
+  except FileNotFoundError as error:
+    # print(err) 
+    print(error)
+  except ValueError as error:
     print(error)
 
 print('model_count', len(input_models))

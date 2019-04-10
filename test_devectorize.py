@@ -9,8 +9,7 @@ def preview_meshes(meshes):
     scene.add(pyrender.Mesh.from_trimesh(m))
   pyrender.Viewer(scene, use_raymond_lighting=True)
   
-
-df = pd.read_csv('./data/out_2.csv')
+df = pd.read_csv('./data/results_random_3.csv')
 # df = pd.read_csv('./data/vectors_pillow.csv')
 print(df.shape)
 

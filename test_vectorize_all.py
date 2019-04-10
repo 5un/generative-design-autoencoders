@@ -7,7 +7,9 @@ from shrink_wrap_quad_mesh import *
 # model_dir = '../models/02876657/' # bottles
 # model_dir = '../models/03467517/' # guitars
 # model_dir = '../models/03938244/' # pillow
-model_dir = '../models/03761084/' # microwave
+# model_dir = '../models/03761084/' # microwave
+model_dir = '../models/02924116/' # bus
+
 
 epsilon = 0.0001
 # common_bounds = [[-epsilon, -epsilon, -epsilon], [epsilon, epsilon, epsilon]]
@@ -24,7 +26,9 @@ preview_devectorization = False
 
 # common_bounds = [[-0.5, -0.3, -0.5], [0.5, 0.3, 0.5]] # pillow
 
-common_bounds = [[-0.608658, -0.651665, -0.636719], [0.608658, 0.651665, 0.636719]] # microwave
+# common_bounds = [[-0.608658, -0.651665, -0.636719], [0.608658, 0.651665, 0.636719]] # microwave
+
+common_bounds = [[-0.695646, -0.493881, -0.433217], [0.695646, 0.493881, 0.433217]] # bus
 
 # [[-0.0721975, -0.492051, -0.249519], [0.0721975, 0.492051, 0.249519]]
 
@@ -85,4 +89,4 @@ print('rejected_models_count', rejected_models_count)
 # print('common_bounds', common_bounds)
 
 df = pd.DataFrame(vectors)
-df.to_csv('./data/vectors_microwave.csv')
+df.to_csv('./data/vectors_bus.csv')
