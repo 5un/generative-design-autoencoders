@@ -7,8 +7,13 @@ from shrink_wrap_quad_mesh import *
 # model_dir = '../models/02876657/' # bottles
 # model_dir = '../models/03467517/' # guitars
 # model_dir = '../models/03938244/' # pillow
+
+# model_dir = '../models/03513137/' # helmet
+
+model_dir = '../models/birdhouse/'
+
 # model_dir = '../models/03761084/' # microwave
-model_dir = '../models/02924116/' # bus
+# model_dir = '../models/02924116/' # bus
 
 
 epsilon = 0.0001
@@ -26,9 +31,14 @@ preview_devectorization = False
 
 # common_bounds = [[-0.5, -0.3, -0.5], [0.5, 0.3, 0.5]] # pillow
 
+# common_bounds = [[-0.5, -0.4, -0.5], [0.5, 0.4, 0.5]] # helmet
+
+common_bounds = [[-0.5, -0.5, -0.5], [0.5, 0.5, 0.5]] # birdhouse
+
+
 # common_bounds = [[-0.608658, -0.651665, -0.636719], [0.608658, 0.651665, 0.636719]] # microwave
 
-common_bounds = [[-0.695646, -0.493881, -0.433217], [0.695646, 0.493881, 0.433217]] # bus
+# common_bounds = [[-0.695646, -0.493881, -0.433217], [0.695646, 0.493881, 0.433217]] # bus
 
 # [[-0.0721975, -0.492051, -0.249519], [0.0721975, 0.492051, 0.249519]]
 
@@ -40,53 +50,59 @@ def preview_meshes(meshes):
     scene.add(pyrender.Mesh.from_trimesh(m))
   pyrender.Viewer(scene, use_raymond_lighting=True)
 
-vectors = []
-
-for filename in os.listdir(model_dir):
-  
-  if len(input_models) >= max_models:
-    continue
-
-  try:
-
-    all_meshes = trimesh.load(model_dir + filename + '/model.obj')
-    if type(all_meshes) != list:
-      all_meshes = [all_meshes] 
+with open('./data/vectors_birdhouse.csv', 'a') as f:
+  # vectors = []
+  files = os.listdir(model_dir)
+  num_processed = 0
+  num_all_files = len(files)
+  for filename in files:
     
-    print('Vectorizing ', filename)
+    print('Processing ', num_processed, '/', num_all_files)
+    if len(input_models) >= max_models:
+      continue
 
-    vector, qmesh = ShrinkWrapQuadMesh.vectorize(all_meshes, 
-              common_bounds, 
-              num_subdivisions=5, 
-              resolution_multiplier=resolution_multiplier,
-              return_result_mesh=True,
-              debug=False)
+    try:
 
-    if preview_result_mesh:
-      preview_meshes(all_meshes)
-      preview_meshes([qmesh.get_tri_mesh()])
+      all_meshes = trimesh.load(model_dir + filename + '/model.obj')
+      if type(all_meshes) != list:
+        all_meshes = [all_meshes] 
+      
+      vector, qmesh = ShrinkWrapQuadMesh.vectorize(all_meshes, 
+                common_bounds, 
+                num_subdivisions=5, 
+                resolution_multiplier=resolution_multiplier,
+                return_result_mesh=True,
+                debug=preview_result_mesh)
 
-    print('shape', vector.shape)
-    vectors.append(vector)
-    input_models.append(filename)
+      if preview_result_mesh:
+        preview_meshes(all_meshes)
+        preview_meshes([qmesh.get_tri_mesh()])
 
-    if preview_devectorization:
-      output_mesh = ShrinkWrapQuadMesh.devectorize(vector, debug=False)
-      preview_meshes([output_mesh.get_tri_mesh()] + all_meshes)
+      print('shape', vector.shape)
+      # vectors.append(vector)
+      df = pd.DataFrame([vector])
+      df.to_csv(f, header= (num_processed == 0))
+      input_models.append(filename)
+      num_processed += 1
+      print()
 
-    # TODO: deal with list mesh
-  except FileNotFoundError:
-    # print(err)
-    pass
+      if preview_devectorization:
+        output_mesh = ShrinkWrapQuadMesh.devectorize(vector, debug=False)
+        preview_meshes([output_mesh.get_tri_mesh()] + all_meshes)
 
-  except Exception as e:
-    print(e)
-    rejected_models_count +=1
-    pass
+      # TODO: deal with list mesh
+    except FileNotFoundError:
+      # print(err)
+      pass
 
-print('model_count', len(input_models))
-print('rejected_models_count', rejected_models_count)
-# print('common_bounds', common_bounds)
+    except Exception as e:
+      print(e)
+      rejected_models_count +=1
+      pass
 
-df = pd.DataFrame(vectors)
-df.to_csv('./data/vectors_bus.csv')
+  print('model_count', len(input_models))
+  print('rejected_models_count', rejected_models_count)
+  # print('common_bounds', common_bounds)
+
+  # df = pd.DataFrame(vectors)
+  # df.to_csv('./data/vectors_helmet.csv')

@@ -3,7 +3,11 @@ import trimesh
 
 # Root dir
 # model_dir = '../models/02876657/' # bottles
-model_dir = '../models/02924116/' # bus
+# model_dir = '../models/02924116/' # bus
+
+model_dir = '../models/03513137/' # helmet
+
+model_dir = '../models/birdhouse/' # helmet
 
 # model_dir = '../models/03938244/' # pillow
 

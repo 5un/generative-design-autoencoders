@@ -4,14 +4,16 @@ import trimesh
 import pandas as pd
 import tensorflow as tf
 from shrink_wrap_quad_mesh import *
-from network import create_layers
+# from network import create_layers
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.contrib.layers import fully_connected
-from flask import Flask
+from flask import Flask, request
 from flask import send_file
+from flask_cors import CORS
 from PIL import Image
 
 app = Flask(__name__)
+CORS(app)
 
 def preview_meshes(meshes):
   scene = pyrender.Scene()
@@ -39,9 +41,15 @@ output_tensor = loaded_graph.get_tensor_by_name(output_tensor_name)
 #   output_mesh = ShrinkWrapQuadMesh.devectorize(vector, debug=False)
 #   preview_meshes([output_mesh.get_tri_mesh()])
 
-@app.route("/")
+@app.route("/", methods=['POST'])
 def generate_random():
-  vec = output_tensor.eval(feed_dict={input_tensor: np.random.rand(1,10)}, session=sess)
+  
+  # TODO Get vec from client
+  input_feature_vec = np.random.rand(1,10)
+  if request.json["input"] is not None:
+    input_feature_vec = np.array([request.json["input"]])
+
+  vec = output_tensor.eval(feed_dict={input_tensor: input_feature_vec}, session=sess)
   output_mesh = ShrinkWrapQuadMesh.devectorize(vec[0], debug=False)
   # preview_meshes([output_mesh.get_tri_mesh()])
   
@@ -51,14 +59,25 @@ def generate_random():
   scene.add(mesh)
   
   camera = pyrender.PerspectiveCamera(yfov=np.pi / 3.0, aspectRatio=1.0)
-  s = np.sqrt(2)/2
+  # s = np.sqrt(2)/2
+  # camera_pose = np.array([
+  #   [0.0, -s,   s,   0.3],
+  #   [1.0,  0.0, 0.0, 0.0],
+  #   [0.0,  s,   s,   10.0],
+  #   [0.0,  0.0, 0.0, 1.0],
+  # ])
   camera_pose = np.array([
-    [0.0, -s,   s,   0.3],
     [1.0,  0.0, 0.0, 0.0],
-    [0.0,  s,   s,   10.0],
+    [0.0,  1.0, 0.0, 0.0],
+    [0.0,  0.0, 1.0, 20.0],
     [0.0,  0.0, 0.0, 1.0],
   ])
   scene.add(camera, pose=camera_pose)
+
+  light = pyrender.SpotLight(color=np.ones(3), intensity=20.0,
+                              innerConeAngle=np.pi/16.0,
+                              outerConeAngle=np.pi/2.0)
+  scene.add(light, pose=camera_pose)
   
   r = pyrender.OffscreenRenderer(viewport_width=640, viewport_height=480)
   color, depth = r.render(scene)
