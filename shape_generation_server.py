@@ -26,7 +26,7 @@ def preview_meshes(meshes):
 
 # Init
 sess = tf.Session()
-model = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], './tmp/saved_model')
+model = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], './tmp/saved_model_washingmachine')
 loaded_graph = tf.get_default_graph()
 
 input_tensor_name = model.signature_def['decode'].inputs['code'].name

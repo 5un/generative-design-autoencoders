@@ -10,7 +10,9 @@ from shrink_wrap_quad_mesh import *
 
 # model_dir = '../models/03513137/' # helmet
 
-model_dir = '../models/birdhouse/'
+# model_dir = '../models/birdhouse/'
+# model_dir = '../models/washingmachine/'
+model_dir = '../models/car_temp/'
 
 # model_dir = '../models/03761084/' # microwave
 # model_dir = '../models/02924116/' # bus
@@ -22,7 +24,7 @@ input_models = []
 rejected_models_count = 0
 resolution_multiplier = 300
 max_models = 1000
-preview_result_mesh = False
+preview_result_mesh = True
 preview_devectorization = False
 
 # common_bounds = [[-0.380373, -0.198178, -0.458945], [0.380373, 0.198178, 0.458945]]
@@ -33,8 +35,13 @@ preview_devectorization = False
 
 # common_bounds = [[-0.5, -0.4, -0.5], [0.5, 0.4, 0.5]] # helmet
 
-common_bounds = [[-0.5, -0.5, -0.5], [0.5, 0.5, 0.5]] # birdhouse
+# common_bounds = [[-0.5, -0.5, -0.5], [0.5, 0.5, 0.5]] # birdhouse
 
+# common_bounds = [[-0.5, -0.4, -0.5], [0.5, 0.4, 0.5]] # printer
+
+# common_bounds = [[-0.4, -0.5, -0.5], [0.4, 0.5, 0.5]] # washingmachine
+
+common_bounds = [[-0.25, -0.25, -0.5], [0.25, 0.25, 0.5]] # car_temp
 
 # common_bounds = [[-0.608658, -0.651665, -0.636719], [0.608658, 0.651665, 0.636719]] # microwave
 
@@ -50,7 +57,7 @@ def preview_meshes(meshes):
     scene.add(pyrender.Mesh.from_trimesh(m))
   pyrender.Viewer(scene, use_raymond_lighting=True)
 
-with open('./data/vectors_birdhouse.csv', 'a') as f:
+with open('./data/vectors_car.csv', 'a') as f:
   # vectors = []
   files = os.listdir(model_dir)
   num_processed = 0
